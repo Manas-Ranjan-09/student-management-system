@@ -21,6 +21,80 @@
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
     </script>
+    
+    {% if user.is_authenticated %}
+    <!-- Session Lifecycle & Tab Guard: prevents keeping session active when tab/browser is closed -->
+    <script>
+        (function() {
+            // If user opted to remain remembered, persistent session is intended
+            if (localStorage.getItem('sms_remember_me') === '1') {
+                return;
+            }
+
+            const activeTab = sessionStorage.getItem('sms_tab_session') === '1';
+            const channelName = 'sms_auth_channel';
+            const hasBroadcast = typeof BroadcastChannel !== 'undefined';
+            const channel = hasBroadcast ? new BroadcastChannel(channelName) : null;
+
+            // Respond to newly opened tabs asking if an active session exists
+            if (channel) {
+                channel.onmessage = function(e) {
+                    if (e.data && e.data.type === 'PING_SESSION') {
+                        channel.postMessage({ type: 'PONG_SESSION' });
+                    }
+                };
+            }
+
+            // Storage event listener for cross-tab sync fallback
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'sms_ping_tab') {
+                    localStorage.setItem('sms_pong_tab', Date.now().toString());
+                }
+            });
+
+            if (activeTab) {
+                return;
+            }
+
+            // Current tab is newly opened without active tab marker.
+            // Check if there is an active tab already open.
+            let sessionFound = false;
+
+            const onPong = function(e) {
+                if (e.data && e.data.type === 'PONG_SESSION') {
+                    sessionFound = true;
+                    sessionStorage.setItem('sms_tab_session', '1');
+                    if (channel) channel.removeEventListener('message', onPong);
+                }
+            };
+            if (channel) {
+                channel.addEventListener('message', onPong);
+                channel.postMessage({ type: 'PING_SESSION' });
+            }
+
+            const storageListener = function(e) {
+                if (e.key === 'sms_pong_tab') {
+                    sessionFound = true;
+                    sessionStorage.setItem('sms_tab_session', '1');
+                    window.removeEventListener('storage', storageListener);
+                }
+            };
+            window.addEventListener('storage', storageListener);
+            localStorage.setItem('sms_ping_tab', Date.now().toString());
+
+            setTimeout(function() {
+                if (channel) channel.removeEventListener('message', onPong);
+                window.removeEventListener('storage', storageListener);
+
+                if (!sessionFound && sessionStorage.getItem('sms_tab_session') !== '1') {
+                    // Website was closed previously and opened fresh without Remember Me.
+                    // Immediately redirect to logout to require logging in again.
+                    window.location.replace("{% url 'logout' %}");
+                }
+            }, 100);
+        })();
+    </script>
+    {% endif %}
     {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -163,7 +237,7 @@
                                 {% endif %}
                                 <li><a class="dropdown-item py-2" href="{% url 'change_password' %}"><i class="fas fa-key me-2 text-secondary"></i>Change Password</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item py-2 text-danger" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                                <li><a class="dropdown-item py-2 text-danger" href="{% url 'logout' %}" onclick="localStorage.removeItem('sms_remember_me'); sessionStorage.removeItem('sms_tab_session');"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
                             </ul>
                         </div>
                     {% endif %}

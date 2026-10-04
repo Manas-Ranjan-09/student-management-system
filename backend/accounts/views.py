@@ -19,14 +19,27 @@ from results.models import SemesterResult
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('dashboard_redirect')
+        # If user explicitly opted to remain remembered, proceed directly to dashboard
+        if request.session.get('remember_me', False):
+            return redirect('dashboard_redirect')
+        else:
+            # User opened the main link without Remember Me; flush unremembered session
+            logout(request)
+            request.session.flush()
         
     if request.method == 'POST':
         u = request.POST.get('username')
         p = request.POST.get('password')
+        remember_me = request.POST.get('remember_me')
         user = authenticate(request, username=u, password=p)
         if user is not None:
             login(request, user)
+            if remember_me:
+                request.session['remember_me'] = True
+                request.session.set_expiry(1209600)  # 2 weeks persistent session
+            else:
+                request.session['remember_me'] = False
+                request.session.set_expiry(0)  # Expires on browser close
             messages.success(request, f"Welcome back, {user.username}! Login successful.")
             return redirect('dashboard_redirect')
         else:
@@ -36,8 +49,10 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
+    request.session.flush()
     messages.info(request, "You have been logged out successfully.")
     return redirect('login')
+
 
 @login_required
 def change_password_view(request):

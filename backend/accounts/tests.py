@@ -142,3 +142,61 @@ class AuthRoutingTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.student_profile.name)
 
+    def test_login_view_get_unauthenticated(self):
+        response = self.client.get(reverse('login'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'accounts/login.html')
+
+    def test_login_view_post_without_remember_me(self):
+        response = self.client.post(reverse('login'), {
+            'username': 'admin_test',
+            'password': 'testpassword123'
+        })
+        self.assertRedirects(response, reverse('dashboard_redirect'), target_status_code=302)
+        session = self.client.session
+        self.assertFalse(session.get('remember_me'))
+        self.assertTrue(session.get_expire_at_browser_close())
+
+    def test_login_view_post_with_remember_me(self):
+        response = self.client.post(reverse('login'), {
+            'username': 'admin_test',
+            'password': 'testpassword123',
+            'remember_me': 'on'
+        })
+        self.assertRedirects(response, reverse('dashboard_redirect'), target_status_code=302)
+        session = self.client.session
+        self.assertTrue(session.get('remember_me'))
+        self.assertFalse(session.get_expire_at_browser_close())
+        self.assertGreater(session.get_expiry_age(), 0)
+
+    def test_login_view_authenticated_without_remember_me_logs_out(self):
+        # Log in without remember_me
+        self.client.post(reverse('login'), {
+            'username': 'admin_test',
+            'password': 'testpassword123'
+        })
+        # Reopening the main link without remember_me should flush session and show login
+        response = self.client.get(reverse('login'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'accounts/login.html')
+        # Check that user is logged out
+        self.assertNotIn('_auth_user_id', self.client.session)
+
+    def test_login_view_authenticated_with_remember_me_redirects(self):
+        # Log in with remember_me
+        self.client.post(reverse('login'), {
+            'username': 'admin_test',
+            'password': 'testpassword123',
+            'remember_me': 'on'
+        })
+        # Reopening the link with remember_me should redirect to dashboard
+        response = self.client.get(reverse('login'))
+        self.assertRedirects(response, reverse('dashboard_redirect'), target_status_code=302)
+
+
+    def test_logout_view(self):
+        self.client.login(username='admin_test', password='testpassword123')
+        response = self.client.get(reverse('logout'))
+        self.assertRedirects(response, reverse('login'))
+        self.assertNotIn('_auth_user_id', self.client.session)
+
