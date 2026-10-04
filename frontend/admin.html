@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | EduAdmin Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .section-view { display: none; }
+        .section-view.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .action-icon-btn {
+            background: none; border: none; padding: 0.4rem 0.6rem;
+            border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition);
+        }
+        .action-icon-btn:hover { background: var(--border-glass); }
+        .action-icon-btn.edit { color: var(--primary); }
+        .action-icon-btn.delete { color: var(--danger); }
+        .action-icon-btn.view { color: var(--accent-purple); }
+    </style>
+</head>
+<body>
+
+    <div class="app-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), var(--accent-purple)); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem;">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <div class="sidebar-brand">EduAdmin Pro</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">ADMINISTRATOR</div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a class="nav-item active" onclick="switchSection('dashboard', this)">
+                    <i class="fas fa-chart-pie"></i> Dashboard
+                </a>
+                <a class="nav-item" onclick="switchSection('students', this)">
+                    <i class="fas fa-user-graduate"></i> Students Directory
+                </a>
+                <a class="nav-item" onclick="switchSection('departments', this)">
+                    <i class="fas fa-building-columns"></i> Departments
+                </a>
+                <a class="nav-item" onclick="switchSection('courses', this)">
+                    <i class="fas fa-book-open"></i> Courses
+                </a>
+                <a class="nav-item" onclick="switchSection('results', this)">
+                    <i class="fas fa-award"></i> Semester Results
+                </a>
+            </nav>
+
+            <div style="padding: 1rem; border-top: 1px solid var(--border-glass);">
+                <button onclick="UI.openBackendConfigModal()" class="btn-secondary-custom" style="width: 100%; justify-content: center; font-size: 0.825rem; margin-bottom: 0.5rem;">
+                    <i class="fas fa-server text-primary"></i> API Settings
+                </button>
+                <button onclick="AUTH.logout()" class="btn-danger-custom" style="width: 100%; justify-content: center; font-size: 0.825rem;">
+                    <i class="fas fa-sign-out-alt"></i> Sign Out
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content">
+            <!-- TOPBAR -->
+            <div class="topbar">
+                <div>
+                    <h2 id="page-title" style="margin-bottom: 0.25rem;">Administrator Dashboard</h2>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;" id="page-subtitle">Overview of campus academic activity and metrics</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <button class="theme-toggle-btn btn-secondary-custom" style="padding: 0.6rem 0.9rem;" onclick="UI.toggleTheme()">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div class="glass-card" style="padding: 0.5rem 1rem; display: flex; align-items: center; gap: 0.75rem;">
+                        <div style="width: 34px; height: 34px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 700; font-size: 0.85rem;" id="admin-name">Admin</div>
+                            <div style="font-size: 0.75rem; color: var(--success); font-weight: 600;"><i class="fas fa-circle" style="font-size: 0.5rem;"></i> Active</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 1. DASHBOARD VIEW -->
+            <div id="section-dashboard" class="section-view active">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+                    <div class="stat-card">
+                        <div class="stat-icon primary"><i class="fas fa-users"></i></div>
+                        <div>
+                            <div class="stat-value" id="dash-total-students">0</div>
+                            <div class="stat-label">Total Students</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon purple"><i class="fas fa-building-columns"></i></div>
+                        <div>
+                            <div class="stat-value" id="dash-total-depts">0</div>
+                            <div class="stat-label">Departments</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon warning"><i class="fas fa-book"></i></div>
+                        <div>
+                            <div class="stat-value" id="dash-total-courses">0</div>
+                            <div class="stat-label">Active Courses</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon success"><i class="fas fa-file-signature"></i></div>
+                        <div>
+                            <div class="stat-value" id="dash-total-results">0</div>
+                            <div class="stat-label">Grades Recorded</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                    <!-- Chart -->
+                    <div class="glass-card" style="padding: 1.75rem;">
+                        <h4 style="margin-bottom: 1.25rem;"><i class="fas fa-chart-bar me-2 text-primary"></i>Student Enrollment by Department</h4>
+                        <div style="height: 300px; position: relative;">
+                            <canvas id="deptDistributionChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="glass-card" style="padding: 1.75rem;">
+                        <h4 style="margin-bottom: 1.25rem;"><i class="fas fa-bolt me-2 text-warning"></i>Quick Actions</h4>
+                        <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+                            <button class="btn-primary-custom" onclick="openAddStudentModal()">
+                                <i class="fas fa-user-plus"></i> Add New Student
+                            </button>
+                            <button class="btn-secondary-custom" onclick="openAddResultModal()">
+                                <i class="fas fa-plus-circle text-primary"></i> Publish Semester Result
+                            </button>
+                            <button class="btn-secondary-custom" onclick="exportStudentsExcel()">
+                                <i class="fas fa-file-excel text-success"></i> Export Students Excel
+                            </button>
+                            <button class="btn-secondary-custom" onclick="openAddDeptModal()">
+                                <i class="fas fa-building me-1 text-purple"></i> Add Department
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Students -->
+                <div class="glass-card" style="padding: 1.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                        <h4><i class="fas fa-history me-2 text-primary"></i>Recent Admissions</h4>
+                        <button class="btn-secondary-custom" style="padding: 0.4rem 0.85rem; font-size: 0.85rem;" onclick="switchSection('students')">View All</button>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="custom-table" id="recent-students-table">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Roll Number</th>
+                                    <th>Department</th>
+                                    <th>Course</th>
+                                    <th>Semester</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="5" style="text-align: center;">Loading data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. STUDENTS VIEW -->
+            <div id="section-students" class="section-view">
+                <div class="glass-card" style="padding: 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; flex: 1;">
+                        <input type="text" id="student-search-input" class="form-control-custom" placeholder="Search name, roll no..." style="max-width: 250px;" oninput="debounce(loadStudents, 300)()">
+                        <select id="student-filter-dept" class="form-control-custom" style="max-width: 200px;" onchange="loadStudents()">
+                            <option value="">All Departments</option>
+                        </select>
+                        <select id="student-filter-sem" class="form-control-custom" style="max-width: 150px;" onchange="loadStudents()">
+                            <option value="">All Semesters</option>
+                            <option value="1">Sem 1</option><option value="2">Sem 2</option><option value="3">Sem 3</option><option value="4">Sem 4</option>
+                            <option value="5">Sem 5</option><option value="6">Sem 6</option><option value="7">Sem 7</option><option value="8">Sem 8</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem;">
+                        <button class="btn-secondary-custom" onclick="exportStudentsExcel()">
+                            <i class="fas fa-file-excel text-success"></i> Export Excel
+                        </button>
+                        <button class="btn-primary-custom" onclick="openAddStudentModal()">
+                            <i class="fas fa-plus"></i> Add Student
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass-card" style="padding: 1.5rem; overflow-x: auto;">
+                    <table class="custom-table" id="students-table">
+                        <thead>
+                            <tr>
+                                <th>Student Details</th>
+                                <th>Roll Number</th>
+                                <th>Reg. Number</th>
+                                <th>Department</th>
+                                <th>Course</th>
+                                <th>Semester</th>
+                                <th style="text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="students-tbody">
+                            <tr><td colspan="7" style="text-align: center;">Loading students...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 3. DEPARTMENTS VIEW -->
+            <div id="section-departments" class="section-view">
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 1.5rem;">
+                    <button class="btn-primary-custom" onclick="openAddDeptModal()">
+                        <i class="fas fa-plus"></i> Add Department
+                    </button>
+                </div>
+                <div class="glass-card" style="padding: 1.5rem; overflow-x: auto;">
+                    <table class="custom-table" id="depts-table">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Department Name</th>
+                                <th>Enrolled Students</th>
+                                <th>Description</th>
+                                <th style="text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="depts-tbody">
+                            <tr><td colspan="5" style="text-align: center;">Loading departments...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 4. COURSES VIEW -->
+            <div id="section-courses" class="section-view">
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 1.5rem;">
+                    <button class="btn-primary-custom" onclick="openAddCourseModal()">
+                        <i class="fas fa-plus"></i> Add Course
+                    </button>
+                </div>
+                <div class="glass-card" style="padding: 1.5rem; overflow-x: auto;">
+                    <table class="custom-table" id="courses-table">
+                        <thead>
+                            <tr>
+                                <th>Course Code</th>
+                                <th>Course Title</th>
+                                <th>Duration</th>
+                                <th>Enrolled Students</th>
+                                <th>Description</th>
+                                <th style="text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="courses-tbody">
+                            <tr><td colspan="6" style="text-align: center;">Loading courses...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 5. RESULTS VIEW -->
+            <div id="section-results" class="section-view">
+                <div class="glass-card" style="padding: 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div style="display: flex; gap: 0.75rem; flex: 1;">
+                        <input type="text" id="result-search-input" class="form-control-custom" placeholder="Search subject or student..." style="max-width: 280px;" oninput="debounce(loadResults, 300)()">
+                        <select id="result-filter-sem" class="form-control-custom" style="max-width: 150px;" onchange="loadResults()">
+                            <option value="">All Semesters</option>
+                            <option value="1">Sem 1</option><option value="2">Sem 2</option><option value="3">Sem 3</option><option value="4">Sem 4</option>
+                            <option value="5">Sem 5</option><option value="6">Sem 6</option><option value="7">Sem 7</option><option value="8">Sem 8</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary-custom" onclick="openAddResultModal()">
+                        <i class="fas fa-plus"></i> Publish Semester Result
+                    </button>
+                </div>
+                <div class="glass-card" style="padding: 1.5rem; overflow-x: auto;">
+                    <table class="custom-table" id="results-table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Semester</th>
+                                <th>Subject Code</th>
+                                <th>Subject Name</th>
+                                <th>Internal / External</th>
+                                <th>Total</th>
+                                <th>Grade</th>
+                                <th>Status</th>
+                                <th style="text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-tbody">
+                            <tr><td colspan="9" style="text-align: center;">Loading examination records...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL CONTAINER (Dynamic) -->
+    <div id="modal-container"></div>
+
+    <!-- SCRIPTS -->
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -42,6 +42,9 @@ from results.views import (
 
 urlpatterns = [
     path('django-admin/', admin.site.urls),
+    
+    # REST API for Decoupled Frontend (Netlify)
+    path('api/', include('api.urls')),
     
     # Authentication & Session Redirects
     path('', login_view, name='login'),

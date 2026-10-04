@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Academic Portal | EduAdmin Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .student-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        .sem-card {
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        .sem-header {
+            background: var(--bg-surface);
+            padding: 1.25rem 1.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-glass);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="student-container">
+        <!-- TOP NAVBAR -->
+        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 44px; height: 44px; background: linear-gradient(135deg, var(--primary), var(--accent-purple)); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.35rem;">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <h2 style="font-size: 1.5rem; margin: 0;">EduAdmin Pro</h2>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">STUDENT EXAMINATION PORTAL</div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 0.75rem; align-items: center;">
+                <button class="btn-secondary-custom" onclick="UI.openBackendConfigModal()" title="API URL Settings">
+                    <i class="fas fa-server text-primary"></i> <span class="d-none d-md-inline">API Settings</span>
+                </button>
+                <button class="theme-toggle-btn btn-secondary-custom" onclick="UI.toggleTheme()">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button onclick="AUTH.logout()" class="btn-danger-custom">
+                    <i class="fas fa-sign-out-alt"></i> Sign Out
+                </button>
+            </div>
+        </header>
+
+        <!-- PROFILE HERO CARD -->
+        <div class="glass-card" style="padding: 2rem; margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+                <div style="display: flex; gap: 1.5rem; align-items: center;">
+                    <div id="stu-avatar" style="width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent-purple)); color: white; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 800; box-shadow: 0 8px 20px var(--primary-glow);">
+                        S
+                    </div>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                            <span class="badge-custom badge-primary">Active Enrolled</span>
+                            <span class="badge-custom badge-warning" id="stu-badge-sem">Semester -</span>
+                        </div>
+                        <h2 style="margin: 0;" id="stu-name">Loading...</h2>
+                        <div style="color: var(--text-secondary); font-size: 0.925rem; margin-top: 0.25rem;">
+                            Roll Number: <strong id="stu-roll">-</strong> | Reg: <span id="stu-reg">-</span>
+                        </div>
+                        <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem;" id="stu-academic-line">
+                            Department - | Course -
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CGPA BADGE -->
+                <div class="glass-card" style="padding: 1.25rem 2rem; text-align: center; border: 2px solid rgba(59, 130, 246, 0.3);">
+                    <div style="font-size: 0.8rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Cumulative CGPA</div>
+                    <h1 style="font-size: 2.75rem; margin: 0; color: var(--primary); line-height: 1.1;" id="stu-cgpa">0.00</h1>
+                    <span class="badge-custom badge-success" style="margin-top: 0.35rem;">Good Standing</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- QUICK STAT METRICS -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2.5rem;">
+            <div class="stat-card">
+                <div class="stat-icon success"><i class="fas fa-check-circle"></i></div>
+                <div>
+                    <div class="stat-value" id="stat-passed">0</div>
+                    <div class="stat-label">Subjects Passed</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon warning"><i class="fas fa-exclamation-triangle"></i></div>
+                <div>
+                    <div class="stat-value" id="stat-failed">0</div>
+                    <div class="stat-label">Backlogs / Fails</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon primary"><i class="fas fa-user-clock"></i></div>
+                <div>
+                    <div class="stat-value" id="stat-attendance">88.5%</div>
+                    <div class="stat-label">Attendance Avg</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple"><i class="fas fa-calendar-alt"></i></div>
+                <div>
+                    <div class="stat-value" id="stat-current-sem">-</div>
+                    <div class="stat-label">Current Semester</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEMESTER RESULTS TITLE & ACTION -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3><i class="fas fa-book-bookmark me-2 text-primary"></i>Academic Statements by Semester</h3>
+            <button class="btn-secondary-custom" onclick="loadStudentData()"><i class="fas fa-sync-alt"></i> Refresh</button>
+        </div>
+
+        <!-- SEMESTER RESULTS CONTAINER -->
+        <div id="semesters-container">
+            <div class="glass-card" style="padding: 3rem; text-align: center; color: var(--text-muted);">
+                <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+                <p>Loading your academic records...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        const studentUser = AUTH.requireAuth('student');
+
+        async function loadStudentData() {
+            try {
+                const [dash, resultsData] = await Promise.all([
+                    API.get('/api/dashboard/student/'),
+                    API.get('/api/results/my-results/')
+                ]);
+
+                // Populate Profile
+                const student = dash.student;
+                document.getElementById('stu-name').innerText = student.name;
+                document.getElementById('stu-roll').innerText = student.roll_number;
+                document.getElementById('stu-reg').innerText = student.registration_number;
+                document.getElementById('stu-badge-sem').innerText = `Semester ${student.semester}`;
+                document.getElementById('stu-academic-line').innerText = `${student.department_name} (${student.department_code}) | ${student.course_name}`;
+                document.getElementById('stu-avatar').innerText = student.name.charAt(0);
+                document.getElementById('stu-cgpa').innerText = dash.overall_cgpa;
+
+                // Populate Quick Stats
+                document.getElementById('stat-passed').innerText = dash.total_passed;
+                document.getElementById('stat-failed').innerText = dash.total_failed;
+                document.getElementById('stat-attendance').innerText = `${dash.attendance_percentage}%`;
+                document.getElementById('stat-current-sem').innerText = `Sem ${student.semester}`;
+
+                // Populate Semesters
+                renderSemesters(resultsData.grouped_results || []);
+            } catch (err) {
+                UI.showToast('Failed to load academic records: ' + err.message, 'error');
+            }
+        }
+
+        function renderSemesters(groupedList) {
+            const container = document.getElementById('semesters-container');
+            if (groupedList.length === 0) {
+                container.innerHTML = `
+                    <div class="glass-card" style="padding: 3rem; text-align: center; color: var(--text-muted);">
+                        <i class="fas fa-info-circle fa-2x mb-3 text-secondary"></i>
+                        <p class="mb-0">No examination statements have been published for your profile yet.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = groupedList.map(grp => `
+                <div class="glass-card sem-card">
+                    <div class="sem-header">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <h4 style="margin: 0;"><i class="fas fa-graduation-cap me-2 text-primary"></i>Semester ${grp.semester} Examination Statement</h4>
+                            <span class="badge-custom badge-primary" style="font-size: 0.9rem;">SGPA: ${grp.sgpa}</span>
+                        </div>
+                        <button class="btn-primary-custom" onclick="downloadPdf(${grp.semester})">
+                            <i class="fas fa-file-pdf"></i> Download Official PDF
+                        </button>
+                    </div>
+                    <div style="overflow-x: auto; padding: 1.25rem;">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Subject Code</th>
+                                    <th>Subject Title</th>
+                                    <th style="text-align: center;">Credits</th>
+                                    <th style="text-align: center;">Internal Marks</th>
+                                    <th style="text-align: center;">External Marks</th>
+                                    <th style="text-align: center;">Total</th>
+                                    <th style="text-align: center;">Letter Grade</th>
+                                    <th style="text-align: center;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${grp.results.map(r => `
+                                    <tr>
+                                        <td><strong>${r.subject_code}</strong></td>
+                                        <td>${r.subject_name}</td>
+                                        <td style="text-align: center;">${r.credit}</td>
+                                        <td style="text-align: center;">${r.internal_marks}</td>
+                                        <td style="text-align: center;">${r.external_marks}</td>
+                                        <td style="text-align: center; font-weight: 700;">${r.total} / 100</td>
+                                        <td style="text-align: center;"><span class="badge-custom badge-primary">${r.grade}</span></td>
+                                        <td style="text-align: center;">
+                                            <span class="badge-custom ${r.result_status === 'Pass' ? 'badge-success' : 'badge-danger'}">
+                                                ${r.result_status}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function downloadPdf(semesterNum) {
+            UI.showToast(`Generating Semester ${semesterNum} Grade Sheet PDF...`, 'info');
+            try {
+                await API.download(`/api/results/download-pdf/${semesterNum}/`, `GradeSheet_Sem${semesterNum}.pdf`);
+                UI.showToast('Grade sheet downloaded successfully!', 'success');
+            } catch (err) {
+                UI.showToast('Download failed: ' + err.message, 'error');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStudentData();
+        });
+    </script>
+</body>
+</html>
