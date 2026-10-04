@@ -111,15 +111,22 @@ DB_PASSWORD = os.getenv('DB_PASSWORD')
 DB_HOST = os.getenv('DB_HOST', '127.0.0.1')
 DB_PORT = os.getenv('DB_PORT', '3306')
 
-if DATABASE_URL:
-    import dj_database_url
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=DATABASE_URL,
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
-    }
+parsed_db = None
+if DATABASE_URL and isinstance(DATABASE_URL, str):
+    clean_db_url = DATABASE_URL.strip()
+    if clean_db_url not in ('', '://', 'postgres://', 'postgresql://'):
+        if clean_db_url.startswith('://'):
+            clean_db_url = 'postgresql' + clean_db_url
+        try:
+            import dj_database_url
+            candidate = dj_database_url.parse(clean_db_url, conn_max_age=600, conn_health_checks=True)
+            if candidate and (candidate.get('HOST') or candidate.get('NAME')):
+                parsed_db = candidate
+        except Exception as e:
+            print(f"Warning: Could not parse DATABASE_URL ({e}). Falling back.")
+
+if parsed_db:
+    DATABASES = {'default': parsed_db}
 elif DB_NAME and DB_USER:
     DATABASES = {
         'default': {
