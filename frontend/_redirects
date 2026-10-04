@@ -1,4 +1,0 @@
-# Netlify routing redirects
-/admin     /admin.html     200
-/student   /student.html   200
-/login     /index.html     200
