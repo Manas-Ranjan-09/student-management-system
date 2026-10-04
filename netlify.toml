@@ -1,12 +1,11 @@
 [build]
-  publish = "."
+  publish = "frontend"
 
 [[redirects]]
   from = "/static/*"
   to = "/static/:splat"
   status = 200
 
-# Proxy all application routes to your Render backend
 [[redirects]]
   from = "/*"
   to = "https://student-management-system-79i8.onrender.com/:splat"
