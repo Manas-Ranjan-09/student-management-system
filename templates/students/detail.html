@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Details | {{ student.name }}{% endblock %}
+{% block page_title %}Student Profile Report{% endblock %}
+{% block active_students %}active{% endblock %}
+
+{% block content %}
+<!-- Print and Back Action Bar -->
+<div class="d-flex justify-content-between align-items-center mb-4 no-print">
+    <a href="{% url 'student_list' %}" class="custom-btn btn-secondary-custom">
+        <i class="fas fa-arrow-left"></i> Back to List
+    </a>
+    <div class="d-flex gap-2">
+        <button onclick="window.print();" class="custom-btn btn-primary-custom">
+            <i class="fas fa-print"></i> Print Details
+        </button>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Student Header Summary -->
+    <div class="col-12">
+        <div class="glass-card">
+            <div class="row align-items-center">
+                <div class="col-md-auto text-center text-md-start mb-3 mb-md-0">
+                    {% if student.profile_photo %}
+                        <img src="{{ student.profile_photo.url }}" class="rounded-circle border border-4 border-primary shadow-sm" style="width: 120px; height: 120px; object-fit: cover;">
+                    {% else %}
+                        <img src="https://ui-avatars.com/api/?name={{ student.name }}&background=2563EB&color=fff" class="rounded-circle border border-4 border-primary shadow-sm" style="width: 120px; height: 120px;">
+                    {% endif %}
+                </div>
+                <div class="col text-center text-md-start">
+                    <span class="custom-badge badge-primary mb-2">Student Profile</span>
+                    <h2 class="fw-bold mb-1">{{ student.name }}</h2>
+                    <p class="text-secondary mb-0">Roll Number: <strong>{{ student.roll_number }}</strong> | Student ID: <strong>{{ student.student_id }}</strong></p>
+                </div>
+                <div class="col-md-auto text-center text-md-end mt-3 mt-md-0 border-start border-md-none ps-md-4">
+                    <div class="text-muted small uppercase fw-bold mb-1">Overall CGPA</div>
+                    <h1 class="fw-extrabold text-primary mb-0">{{ cgpa }}</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Personal details -->
+    <div class="col-md-6">
+        <div class="glass-card h-100">
+            <h5 class="fw-bold mb-4 border-bottom pb-2 text-primary">
+                <i class="fas fa-user me-2"></i>Personal Details
+            </h5>
+            <table class="table table-borderless align-middle mb-0">
+                <tbody>
+                    <tr>
+                        <td class="text-secondary fw-semibold py-2 w-40">Gender:</td>
+                        <td class="fw-semibold py-2">{{ student.gender }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-secondary fw-semibold py-2">Date of Birth:</td>
+                        <td class="fw-semibold py-2">{{ student.dob }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-secondary fw-semibold py-2">Email Address:</td>
+                        <td class="fw-semibold py-2">{{ student.email }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-secondary fw-semibold py-2">Phone Number:</td>
+                        <td class="fw-semibold py-2">{{ student.phone|default:"N/A" }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-secondary fw-semibold py-2">Residential Address:</td>
+                        <td class="fw-semibold py-2 text-wrap">{{ student.address }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Academic details -->
+    <div class="col-md-6">
+        <div class="glass-card h-100">
+            <h5 class="fw-bold mb-4 border-bottom pb-2 text-primary">
+                <i class="fas fa-university me-2"></i>Academic Details
+            </h5>
+            <table class="table table-borderless align-middle mb-0">
+                <tbody>
+                    <tr>
+                        <td class="text-secondary fw-semibold py-2 w-40">Department:</td>
+                        <td class="fw-semibold py-2">{{ student.department.name }} ({{ student.department.code }})</td>
+                    </tr>
+                    <tr>
+                        <td class="text-secondary fw-semibold py-2">Course Enrolled:</td>
+                        <td class="fw-semibold py-2">{{ student.course.name }} ({{ student.course.code }})</td>
+                    </tr>
+                    <tr>
+                        <td class="text-secondary fw-semibold py-2">Current Semester:</td>
+                        <td class="fw-semibold py-2">Semester {{ student.semester }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-secondary fw-semibold py-2">Academic Year:</td>
+                        <td class="fw-semibold py-2">{{ student.academic_year }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-secondary fw-semibold py-2">Admission Date:</td>
+                        <td class="fw-semibold py-2">{{ student.admission_date }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Academic Grade History -->
+    <div class="col-12">
+        <div class="glass-card">
+            <h5 class="fw-bold mb-4 border-bottom pb-2 text-primary">
+                <i class="fas fa-award me-2"></i>Semester Grades & Academic Record
+            </h5>
+            {% if results %}
+                <div class="table-responsive border-0">
+                    <table class="table table-hover align-middle mb-0 custom-table">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Semester</th>
+                                <th>Subject Code</th>
+                                <th>Subject Title</th>
+                                <th>Credits</th>
+                                <th>Internal Marks</th>
+                                <th>External Marks</th>
+                                <th>Total</th>
+                                <th>Grade</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for res in results %}
+                            <tr>
+                                <td class="fw-bold">Semester {{ res.semester }}</td>
+                                <td class="fw-semibold">{{ res.subject_code }}</td>
+                                <td>{{ res.subject_name }}</td>
+                                <td>{{ res.credit }}</td>
+                                <td>{{ res.internal_marks }}</td>
+                                <td>{{ res.external_marks }}</td>
+                                <td class="fw-semibold">{{ res.total }} / 100</td>
+                                <td><span class="badge bg-primary">{{ res.grade }}</span></td>
+                                <td>
+                                    <span class="custom-badge {% if res.result_status == 'Pass' %}badge-success{% else %}badge-danger{% endif %}">
+                                        {{ res.result_status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="fas fa-info-circle fa-2x mb-3"></i>
+                    <p class="mb-0">No academic results published for this student.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

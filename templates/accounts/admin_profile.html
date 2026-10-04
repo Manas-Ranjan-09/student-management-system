@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile | EduAdmin Pro{% endblock %}
+{% block page_title %}Administrator Profile{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="glass-card">
+            <div class="d-flex align-items-center gap-2 mb-4">
+                <a href="{% url 'admin_dashboard' %}" class="btn btn-sm btn-outline-secondary border-0"><i class="fas fa-arrow-left"></i></a>
+                <h4 class="fw-bold mb-0">Manage My Profile</h4>
+            </div>
+            
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="row align-items-center mb-4 pb-3 border-bottom g-3">
+                    <div class="col-md-3 text-center">
+                        {% if profile.profile_photo %}
+                            <img src="{{ profile.profile_photo.url }}" class="rounded-circle border border-4 border-primary shadow-sm" style="width: 120px; height: 120px; object-fit: cover;" id="photo-preview">
+                        {% else %}
+                            <img src="https://ui-avatars.com/api/?name={{ profile.name }}&background=2563EB&color=fff" class="rounded-circle border border-4 border-primary shadow-sm" style="width: 120px; height: 120px;" id="photo-preview">
+                        {% endif %}
+                    </div>
+                    <div class="col-md-9">
+                        <h5 class="fw-bold mb-1">{{ profile.name }}</h5>
+                        <p class="text-secondary small mb-2">Employee ID: <strong>{{ profile.employee_id }}</strong> | Role: <strong>{{ user.get_role_display }}</strong></p>
+                        
+                        <label for="profile_photo" class="custom-btn btn-secondary-custom btn-sm">
+                            <i class="fas fa-camera"></i> Change Photo
+                        </label>
+                        <input type="file" name="profile_photo" id="profile_photo" class="d-none" accept="image/*" onchange="previewImage(event)">
+                        <small class="text-muted d-block mt-1">Accepts JPG, PNG formats.</small>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <!-- Name -->
+                    <div class="col-md-6 custom-form-group">
+                        <label for="name" class="custom-label">Full Name <span class="text-danger">*</span></label>
+                        <input type="text" name="name" id="name" class="custom-input" placeholder="Enter your full name" value="{{ profile.name }}" required>
+                    </div>
+                    
+                    <!-- Designation -->
+                    <div class="col-md-6 custom-form-group">
+                        <label for="designation" class="custom-label">Official Designation <span class="text-danger">*</span></label>
+                        <input type="text" name="designation" id="designation" class="custom-input" placeholder="e.g. Chief IT Admin, Registrar" value="{{ profile.designation }}" required>
+                    </div>
+                    
+                    <!-- Email -->
+                    <div class="col-md-6 custom-form-group">
+                        <label for="email" class="custom-label">Email Address <span class="text-danger">*</span></label>
+                        <input type="email" name="email" id="email" class="custom-input" placeholder="admin@domain.com" value="{{ user.email }}" required>
+                    </div>
+                    
+                    <!-- Phone -->
+                    <div class="col-md-6 custom-form-group">
+                        <label for="phone" class="custom-label">Phone Contact</label>
+                        <input type="text" name="phone" id="phone" class="custom-input" placeholder="Enter contact number" value="{{ profile.phone|default:'' }}">
+                    </div>
+                    
+                    <!-- Employee ID Readonly -->
+                    <div class="col-md-6 custom-form-group">
+                        <label class="custom-label">Employee ID</label>
+                        <input type="text" class="custom-input" value="{{ profile.employee_id }}" readonly style="background-color: var(--border-color); opacity: 0.8;">
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3 justify-content-end mt-4 pt-3 border-top">
+                    <a href="{% url 'admin_dashboard' %}" class="custom-btn btn-secondary-custom">Cancel</a>
+                    <button type="submit" class="custom-btn btn-primary-custom">Update Profile Info</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function previewImage(event) {
+        const reader = new FileReader();
+        reader.onload = function(){
+            const output = document.getElementById('photo-preview');
+            output.src = reader.result;
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Portal | {{ student.name }}{% endblock %}
+{% block page_title %}Student Academic Portal{% endblock %}
+{% block active_student_dash %}active{% endblock %}
+
+{% block content %}
+<!-- Welcome Header Banner -->
+<div class="glass-card mb-4 bg-primary text-white border-0 py-4 px-4 shadow-sm" style="background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important;">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            {% if student.profile_photo %}
+                <img src="{{ student.profile_photo.url }}" class="rounded-circle border border-3 border-white shadow-sm" style="width: 80px; height: 80px; object-fit: cover;">
+            {% else %}
+                <img src="https://ui-avatars.com/api/?name={{ student.name }}&background=FFFFFF&color=2563EB" class="rounded-circle border border-3 border-white shadow-sm" style="width: 80px; height: 80px;">
+            {% endif %}
+        </div>
+        <div class="col mt-3 mt-sm-0">
+            <h4 class="fw-bold mb-1">Welcome back, {{ student.name }}!</h4>
+            <p class="mb-0 opacity-75">Roll Number: {{ student.roll_number }} | Reg. Number: {{ student.registration_number }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Left Column: Quick Stats & Progress -->
+    <div class="col-lg-8">
+        <div class="row g-4 mb-4">
+            <!-- CGPA Card -->
+            <div class="col-md-6">
+                <div class="glass-card text-center py-4">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-light text-primary mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-chart-line fa-2x"></i>
+                    </div>
+                    <h2 class="fw-extrabold text-primary mb-1">{{ overall_cgpa }}</h2>
+                    <div class="text-secondary fw-semibold">Cumulative CGPA</div>
+                    <small class="text-muted">Out of 10.0 scale</small>
+                </div>
+            </div>
+
+            <!-- Attendance Card -->
+            <div class="col-md-6">
+                <div class="glass-card text-center py-4">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success-light text-success mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-calendar-check fa-2x"></i>
+                    </div>
+                    <h2 class="fw-extrabold text-success mb-1">{{ attendance_percentage }}%</h2>
+                    <div class="text-secondary fw-semibold">Attendance percentage</div>
+                    <small class="text-muted">Minimum criteria: 75%</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Latest Results Card -->
+        <div class="glass-card mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h5 class="fw-bold mb-0">
+                    <i class="fas fa-award text-primary me-2"></i>Latest Semester Results
+                    {% if latest_sem %}
+                        (Semester {{ latest_sem }})
+                    {% endif %}
+                </h5>
+                {% if latest_sem %}
+                    <a href="{% url 'student_result_view' %}" class="custom-btn btn-secondary-custom btn-sm">
+                        View All Semesters <i class="fas fa-chevron-right ms-1"></i>
+                    </a>
+                {% endif %}
+            </div>
+
+            {% if latest_results %}
+                <div class="table-responsive border-0">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Subject Code</th>
+                                <th>Subject Name</th>
+                                <th>Credit</th>
+                                <th>Grade</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in latest_results %}
+                            <tr>
+                                <td class="fw-semibold">{{ result.subject_code }}</td>
+                                <td>{{ result.subject_name }}</td>
+                                <td>{{ result.credit }}</td>
+                                <td><span class="badge {% if result.grade == 'F' %}bg-danger{% else %}bg-primary{% endif %}">{{ result.grade }}</span></td>
+                                <td>{{ result.total }} / 100</td>
+                                <td>
+                                    <span class="custom-badge {% if result.result_status == 'Pass' %}badge-success{% else %}badge-danger{% endif %}">
+                                        {{ result.result_status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="fas fa-info-circle fa-2x mb-3"></i>
+                    <p class="mb-0">No semester results have been published for you yet.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Right Column: Personal Info & Course Info -->
+    <div class="col-lg-4">
+        <!-- Personal Details -->
+        <div class="glass-card mb-4">
+            <h5 class="fw-bold mb-4"><i class="fas fa-user-circle text-primary me-2"></i>Personal Details</h5>
+            <ul class="list-group list-group-flush bg-transparent">
+                <li class="list-group-item bg-transparent px-0 py-3 border-color d-flex justify-content-between align-items-center">
+                    <span class="text-secondary fw-medium">Full Name</span>
+                    <span class="fw-semibold">{{ student.name }}</span>
+                </li>
+                <li class="list-group-item bg-transparent px-0 py-3 border-color d-flex justify-content-between align-items-center">
+                    <span class="text-secondary fw-medium">Email Address</span>
+                    <span class="fw-semibold">{{ student.email }}</span>
+                </li>
+                <li class="list-group-item bg-transparent px-0 py-3 border-color d-flex justify-content-between align-items-center">
+                    <span class="text-secondary fw-medium">Phone Number</span>
+                    <span class="fw-semibold">{{ student.phone }}</span>
+                </li>
+                <li class="list-group-item bg-transparent px-0 py-3 border-color d-flex justify-content-between align-items-center">
+                    <span class="text-secondary fw-medium">Gender</span>
+                    <span class="fw-semibold">{{ student.gender }}</span>
+                </li>
+                <li class="list-group-item bg-transparent px-0 py-3 border-color d-flex justify-content-between align-items-center">
+                    <span class="text-secondary fw-medium">Date of Birth</span>
+                    <span class="fw-semibold">{{ student.dob }}</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Academic Info -->
+        <div class="glass-card">
+            <h5 class="fw-bold mb-4"><i class="fas fa-university text-secondary me-2"></i>Academic Info</h5>
+            <ul class="list-group list-group-flush bg-transparent">
+                <li class="list-group-item bg-transparent px-0 py-3 border-color d-flex justify-content-between align-items-center">
+                    <span class="text-secondary fw-medium">Department</span>
+                    <span class="fw-semibold text-end">{{ student.department.name }} ({{ student.department.code }})</span>
+                </li>
+                <li class="list-group-item bg-transparent px-0 py-3 border-color d-flex justify-content-between align-items-center">
+                    <span class="text-secondary fw-medium">Course Program</span>
+                    <span class="fw-semibold text-end">{{ student.course.name }}</span>
+                </li>
+                <li class="list-group-item bg-transparent px-0 py-3 border-color d-flex justify-content-between align-items-center">
+                    <span class="text-secondary fw-medium">Current Semester</span>
+                    <span class="fw-semibold">Semester {{ student.semester }}</span>
+                </li>
+                <li class="list-group-item bg-transparent px-0 py-3 border-color d-flex justify-content-between align-items-center">
+                    <span class="text-secondary fw-medium">Academic Year</span>
+                    <span class="fw-semibold">{{ student.academic_year }}</span>
+                </li>
+                <li class="list-group-item bg-transparent px-0 py-3 border-color d-flex justify-content-between align-items-center">
+                    <span class="text-secondary fw-medium">Admission Date</span>
+                    <span class="fw-semibold">{{ student.admission_date }}</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

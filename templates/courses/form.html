@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} | EduAdmin Pro{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block active_courses %}active{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="glass-card">
+            <div class="d-flex align-items-center gap-2 mb-4">
+                <a href="{% url 'course_list' %}" class="btn btn-sm btn-outline-secondary border-0"><i class="fas fa-arrow-left"></i></a>
+                <h4 class="fw-bold mb-0">{% if course %}Update{% else %}Create{% endif %} Course</h4>
+            </div>
+            
+            <form method="POST">
+                {% csrf_token %}
+                <div class="custom-form-group">
+                    <label for="code" class="custom-label">Course Code</label>
+                    <input type="text" name="code" id="code" class="custom-input" placeholder="e.g., CS-101, IT-302" value="{{ course.code|default:'' }}" required {% if course %}readonly style="background-color: var(--border-color); opacity: 0.8;"{% endif %}>
+                    <small class="text-muted">A unique short identifier for the course.</small>
+                </div>
+                
+                <div class="custom-form-group">
+                    <label for="name" class="custom-label">Course Title</label>
+                    <input type="text" name="name" id="name" class="custom-input" placeholder="e.g., Bachelor of Computer Applications" value="{{ course.name|default:'' }}" required>
+                </div>
+                
+                <div class="custom-form-group">
+                    <label for="duration" class="custom-label">Duration</label>
+                    <input type="text" name="duration" id="duration" class="custom-input" placeholder="e.g., 4 Years, 2 Years, 6 Months" value="{{ course.duration|default:'' }}" required>
+                </div>
+                
+                <div class="custom-form-group">
+                    <label for="description" class="custom-label">Description</label>
+                    <textarea name="description" id="description" class="custom-textarea" rows="4" placeholder="Brief details about course objectives (optional)">{{ course.description|default:'' }}</textarea>
+                </div>
+                
+                <div class="d-flex gap-3 justify-content-end mt-4">
+                    <a href="{% url 'course_list' %}" class="custom-btn btn-secondary-custom">Cancel</a>
+                    <button type="submit" class="custom-btn btn-primary-custom">Save Course</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

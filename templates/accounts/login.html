@@ -1,0 +1,374 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | EduAdmin Pro</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+    
+    <style>
+        /* Custom Modern Page overrides */
+        body.auth-page-split {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            transition: background-color 0.3s ease;
+        }
+
+        .split-layout {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* Hero Left Pane */
+        .split-hero {
+            flex: 1.2;
+            background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 50%, #3B82F6 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 50px;
+            color: #FFFFFF;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated Ambient Spheres */
+        .bubble-glow {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            filter: blur(80px);
+            animation: floatGlow 15s infinite alternate ease-in-out;
+        }
+        .bg-glow-1 {
+            width: 300px;
+            height: 300px;
+            top: -50px;
+            left: -50px;
+        }
+        .bg-glow-2 {
+            width: 400px;
+            height: 400px;
+            bottom: -100px;
+            right: -50px;
+            animation-delay: -5s;
+        }
+
+        @keyframes floatGlow {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-50px) scale(1.2); }
+        }
+
+        .hero-brand {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 2;
+        }
+        .hero-brand i {
+            color: #60A5FA;
+        }
+
+        .hero-center {
+            max-width: 500px;
+            margin: auto 0;
+            z-index: 2;
+        }
+        .hero-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 20px;
+        }
+        .hero-desc {
+            font-size: 1.125rem;
+            opacity: 0.85;
+            font-weight: 300;
+        }
+
+        .hero-footer {
+            z-index: 2;
+            opacity: 0.7;
+            font-size: 0.875rem;
+        }
+
+        /* Form Right Pane */
+        .split-form {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            background-color: var(--bg-secondary);
+            position: relative;
+            z-index: 2;
+            transition: background-color 0.3s ease;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .auth-logo-box {
+            display: none; /* Shown only on mobile screens */
+        }
+
+        .login-title-box h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Glassmorphism Inputs */
+        .modern-input-group {
+            position: relative;
+            margin-bottom: 24px;
+        }
+        .modern-input-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            display: block;
+        }
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .input-wrapper i {
+            position: absolute;
+            left: 16px;
+            color: var(--text-muted);
+            transition: color 0.2s ease;
+        }
+        .input-wrapper input {
+            width: 100%;
+            padding: 14px 16px 14px 44px;
+            font-size: 0.95rem;
+            background-color: var(--bg-primary);
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+            background-color: var(--bg-secondary);
+        }
+        .input-wrapper input:focus + i {
+            color: var(--primary);
+        }
+        
+        .password-toggle-btn {
+            position: absolute;
+            right: 16px;
+            cursor: pointer;
+            color: var(--text-muted);
+            border: none;
+            background: none;
+            padding: 0;
+        }
+        .password-toggle-btn:hover {
+            color: var(--text-primary);
+        }
+
+        /* Form Controls */
+        .form-check-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .forgot-link {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .forgot-link:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
+        }
+
+        .modern-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 1.05rem;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+        }
+        .modern-btn:hover {
+            transform: translateY(-1.5px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+        }
+
+        /* Mobile styling overrides */
+        @media (max-width: 991px) {
+            .split-hero {
+                display: none;
+            }
+            .auth-logo-box {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                margin-bottom: 24px;
+            }
+            .split-form {
+                flex: 1;
+                padding: 30px 20px;
+                background-color: var(--bg-primary);
+            }
+            .form-container {
+                background-color: var(--bg-secondary);
+                border: 1px solid var(--border-color);
+                border-radius: 24px;
+                box-shadow: var(--card-shadow);
+                padding: 40px 24px;
+            }
+        }
+    </style>
+</head>
+<body class="auth-page-split">
+    <!-- Loading Overlay -->
+    <div id="loader-overlay">
+        <div class="loader-spinner"></div>
+    </div>
+
+    <div class="split-layout">
+        <!-- Left Side: Hero Brand Banner -->
+        <div class="split-hero">
+            <div class="bubble-glow bg-glow-1"></div>
+            <div class="bubble-glow bg-glow-2"></div>
+            
+            <div class="hero-brand">
+                <i class="fas fa-graduation-cap"></i>
+                <span>EduAdmin Pro</span>
+            </div>
+            
+            <div class="hero-center">
+                <h1 class="hero-title">Manage Your Academic Journey</h1>
+                <p class="hero-desc">Access semester results, print official reports, analyze student distribution charts, and update profiles in one single, responsive portal.</p>
+            </div>
+            
+            <div class="hero-footer">
+                &copy; 2026 EduAdmin Pro. All rights reserved.
+            </div>
+        </div>
+
+        <!-- Right Side: Clean Login Form -->
+        <div class="split-form">
+            <div class="form-container">
+                <!-- Brand logo on mobile -->
+                <div class="auth-logo-box text-center">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-circle mb-2" style="width: 50px; height: 50px; font-size: 1.5rem;">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0 text-primary">EduAdmin Pro</h5>
+                </div>
+
+                <div class="login-title-box mb-4">
+                    <h3>Sign In</h3>
+                    <p class="text-secondary small mb-0">Enter your official credentials to proceed</p>
+                </div>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show border-0 rounded-3 mb-4" role="alert">
+                            <small>{{ message }}</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <!-- Username -->
+                    <div class="modern-input-group">
+                        <label for="username">Username</label>
+                        <div class="input-wrapper">
+                            <input type="text" name="username" id="username" placeholder="Enter username / roll number" required>
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="modern-input-group">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label for="password" class="mb-0">Password</label>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="password" name="password" id="password" placeholder="Enter password" required>
+                            <i class="fas fa-lock"></i>
+                            <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility()" aria-label="Toggle Password Visibility">
+                                <i class="fas fa-eye-slash" id="toggle-eye-icon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="rememberMe">
+                            <label class="form-check-label" for="rememberMe">Remember me</label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="custom-btn btn-primary-custom modern-btn w-100 py-3">
+                        <span>Sign In</span> <i class="fas fa-sign-in-alt"></i>
+                    </button>
+                </form>
+
+                <div class="text-center mt-4 border-top pt-3">
+                    <p class="mb-0 text-muted small">New student? <a href="{% url 'register' %}" class="text-primary fw-bold text-decoration-none">Create Account</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{% static 'js/main.js' %}"></script>
+    
+    <script>
+        function togglePasswordVisibility() {
+            const passwordField = document.getElementById('password');
+            const eyeIcon = document.getElementById('toggle-eye-icon');
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                eyeIcon.className = 'fas fa-eye';
+            } else {
+                passwordField.type = 'password';
+                eyeIcon.className = 'fas fa-eye-slash';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Department: {{ department.name }} | EduAdmin Pro{% endblock %}
+{% block page_title %}Department Details{% endblock %}
+{% block active_departments %}active{% endblock %}
+
+{% block content %}
+<!-- Back and Action Bar -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <a href="{% url 'department_list' %}" class="custom-btn btn-secondary-custom">
+        <i class="fas fa-arrow-left"></i> Back to Departments
+    </a>
+    <div class="d-flex gap-2">
+        <a href="{% url 'department_edit' department.pk %}" class="custom-btn btn-primary-custom">
+            <i class="fas fa-edit"></i> Edit Department
+        </a>
+    </div>
+</div>
+
+<!-- Department Overview Card -->
+<div class="glass-card mb-4 border-start border-primary border-4">
+    <span class="custom-badge badge-primary mb-2">Department Overview</span>
+    <h3 class="fw-bold mb-1">{{ department.name }}</h3>
+    <p class="text-secondary mb-3">Code Reference: <strong>{{ department.code }}</strong> | Total Students Enrolled: <strong>{{ students.count }}</strong></p>
+    <p class="mb-0 text-secondary italic">{{ department.description|default:"No description provided for this department." }}</p>
+</div>
+
+<!-- Students Listing Card -->
+<div class="glass-card">
+    <h5 class="fw-bold mb-4"><i class="fas fa-user-graduate text-primary me-2"></i>Enrolled Students Directory</h5>
+    
+    <div class="table-responsive border-0">
+        <table class="table table-hover align-middle mb-0 custom-table">
+            <thead>
+                <tr>
+                    <th>Roll Number</th>
+                    <th>Student Name</th>
+                    <th>Course Program</th>
+                    <th>Semester</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if students %}
+                    {% for student in students %}
+                    <tr>
+                        <td class="fw-bold">{{ student.roll_number }}</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                {% if student.profile_photo %}
+                                    <img src="{{ student.profile_photo.url }}" class="rounded-circle shadow-sm" style="width: 38px; height: 38px; object-fit: cover; border: 2px solid var(--primary-light);">
+                                {% else %}
+                                    <img src="https://ui-avatars.com/api/?name={{ student.name }}&background=2563EB&color=fff" class="rounded-circle shadow-sm" style="width: 38px; height: 38px; border: 2px solid var(--primary-light);">
+                                {% endif %}
+                                <div>
+                                    <div class="fw-semibold">{{ student.name }}</div>
+                                    <small class="text-secondary d-block">{{ student.email }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ student.course.name }}</td>
+                        <td><span class="custom-badge badge-primary">Sem {{ student.semester }}</span></td>
+                        <td class="text-end">
+                            <div class="d-flex gap-2 justify-content-end">
+                                <a href="{% url 'student_detail' student.pk %}" class="btn btn-sm btn-outline-info" title="View Profile">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                <a href="{% url 'student_edit' student.pk %}" class="btn btn-sm btn-outline-primary" title="Edit Profile">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            <i class="fas fa-user-slash fa-2x mb-3"></i>
+                            <p class="mb-0">No students are currently enrolled in this department.</p>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

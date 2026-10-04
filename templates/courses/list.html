@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Courses | EduAdmin Pro{% endblock %}
+{% block page_title %}Course Management{% endblock %}
+{% block active_courses %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="fw-bold mb-0">Offered Courses</h5>
+    <a href="{% url 'course_add' %}" class="custom-btn btn-primary-custom">
+        <i class="fas fa-plus"></i> Add New Course
+    </a>
+</div>
+
+<div class="glass-card">
+    <div class="table-responsive border-0">
+        <table class="table table-hover align-middle mb-0 custom-table">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Course Title</th>
+                    <th>Duration</th>
+                    <th>Description</th>
+                    <th class="text-center">Enrolled Students</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if courses %}
+                    {% for course in courses %}
+                    <tr>
+                        <td class="fw-bold text-primary">{{ course.code }}</td>
+                        <td class="fw-semibold">{{ course.name }}</td>
+                        <td>{{ course.duration }}</td>
+                        <td class="text-secondary text-truncate" style="max-width: 250px;">{{ course.description|default:"No description provided" }}</td>
+                        <td class="text-center">
+                            <span class="badge bg-secondary rounded-pill">{{ course.students.count }}</span>
+                        </td>
+                        <td class="text-end">
+                            <div class="d-flex gap-2 justify-content-end">
+                                <a href="{% url 'course_edit' course.pk %}" class="btn btn-sm btn-outline-primary" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'course_delete' course.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirmDelete('Are you sure you want to delete this course? All records referencing it will be affected.');" title="Delete">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="fas fa-info-circle fa-2x mb-3"></i>
+                            <p class="mb-0">No courses offered yet. Click 'Add New Course' to start.</p>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

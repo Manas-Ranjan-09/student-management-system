@@ -1,0 +1,201 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Student Management System{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom Style Sheet -->
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+    
+    <!-- Chart.js for Admin Analytics (loaded if block has scripts) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Theme Inline Loader (Prevents Flicker) -->
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loader-overlay">
+        <div class="loader-spinner"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="app-sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>EduAdmin Pro</span>
+                </div>
+            </div>
+            
+            <ul class="sidebar-menu">
+                {% if user.is_authenticated %}
+                    {% if user.role == 'admin' %}
+                        <!-- Admin Menu -->
+                        <li class="sidebar-menu-header">Core Management</li>
+                        <li class="sidebar-item {% block active_admin_dash %}{% endblock %}">
+                            <a href="{% url 'admin_dashboard' %}" class="sidebar-link">
+                                <i class="fas fa-th-large"></i> <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item {% block active_departments %}{% endblock %}">
+                            <a href="{% url 'department_list' %}" class="sidebar-link">
+                                <i class="fas fa-building"></i> <span>Departments</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item {% block active_courses %}{% endblock %}">
+                            <a href="{% url 'course_list' %}" class="sidebar-link">
+                                <i class="fas fa-book"></i> <span>Courses</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item {% block active_students %}{% endblock %}">
+                            <a href="{% url 'student_list' %}" class="sidebar-link">
+                                <i class="fas fa-user-graduate"></i> <span>Students</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item {% block active_results %}{% endblock %}">
+                            <a href="{% url 'result_list' %}" class="sidebar-link">
+                                <i class="fas fa-poll-h"></i> <span>Semester Results</span>
+                            </a>
+                        </li>
+                    {% elif user.role == 'student' %}
+                        <!-- Student Menu -->
+                        <li class="sidebar-menu-header">Academic Portal</li>
+                        <li class="sidebar-item {% block active_student_dash %}{% endblock %}">
+                            <a href="{% url 'student_dashboard' %}" class="sidebar-link">
+                                <i class="fas fa-columns"></i> <span>My Portal</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item {% block active_student_results %}{% endblock %}">
+                            <a href="{% url 'student_result_view' %}" class="sidebar-link">
+                                <i class="fas fa-award"></i> <span>My Results</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endif %}
+                
+                <li class="sidebar-menu-header">Preferences</li>
+                <li class="sidebar-item {% block active_change_pass %}{% endblock %}">
+                    <a href="{% url 'change_password' %}" class="sidebar-link">
+                        <i class="fas fa-key"></i> <span>Change Password</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                {% if user.is_authenticated %}
+                    <div class="user-profile-summary">
+                        {% if user.role == 'student' and user.student_profile.profile_photo %}
+                            <img src="{{ user.student_profile.profile_photo.url }}" alt="Profile">
+                        {% elif user.role == 'admin' and user.admin_profile.profile_photo %}
+                            <img src="{{ user.admin_profile.profile_photo.url }}" alt="Profile">
+                        {% else %}
+                            <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=2563EB&color=fff" alt="Profile">
+                        {% endif %}
+                        <div class="user-profile-info">
+                            <span class="user-profile-name">
+                                {% if user.role == 'admin' and user.admin_profile %}
+                                    {{ user.admin_profile.name }}
+                                {% elif user.role == 'student' and user.student_profile %}
+                                    {{ user.student_profile.name }}
+                                {% else %}
+                                    {{ user.get_full_name|default:user.username }}
+                                {% endif %}
+                            </span>
+                            <span class="user-profile-role">
+                                {% if user.role == 'admin' and user.admin_profile %}
+                                    {{ user.admin_profile.designation }}
+                                {% else %}
+                                    {{ user.get_role_display }}
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </aside>
+
+        <!-- Main Wrapper -->
+        <main class="app-main">
+            <!-- Header -->
+            <header class="app-header">
+                <div class="header-left">
+                    <button class="sidebar-toggle-btn" id="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="page-title-area">
+                        <h4>{% block page_title %}Dashboard{% endblock %}</h4>
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <!-- Light/Dark Mode Button -->
+                    <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle Theme" aria-label="Toggle Theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    
+                    {% if user.is_authenticated %}
+                        <div class="dropdown">
+                            <button class="btn dropdown-toggle d-flex align-items-center gap-2 border-0 text-primary fw-semibold p-1" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                {% if user.role == 'student' and user.student_profile.profile_photo %}
+                                    <img src="{{ user.student_profile.profile_photo.url }}" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;" alt="Avatar">
+                                {% elif user.role == 'admin' and user.admin_profile.profile_photo %}
+                                    <img src="{{ user.admin_profile.profile_photo.url }}" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;" alt="Avatar">
+                                {% else %}
+                                    <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=2563EB&color=fff" class="rounded-circle" style="width: 32px; height: 32px;" alt="Avatar">
+                                {% endif %}
+                                <span class="d-none d-md-inline text-dark-theme-toggle">{{ user.username }}</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2" aria-labelledby="userDropdown">
+                                {% if user.role == 'admin' %}
+                                    <li><a class="dropdown-item py-2" href="{% url 'admin_profile' %}"><i class="fas fa-user-circle me-2 text-secondary"></i>My Profile</a></li>
+                                {% endif %}
+                                <li><a class="dropdown-item py-2" href="{% url 'change_password' %}"><i class="fas fa-key me-2 text-secondary"></i>Change Password</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item py-2 text-danger" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+            </header>
+            
+            <!-- Content -->
+            <div class="content-body">
+                <!-- Django Flash Messages -->
+                {% if messages %}
+                    <div class="row no-print">
+                        <div class="col-12">
+                            {% for message in messages %}
+                                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show shadow-sm border-0 rounded-3 mb-4 d-flex align-items-center" role="alert">
+                                    <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-exclamation-circle{% endif %} me-2"></i>
+                                    <div>{{ message }}</div>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+                
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS script -->
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

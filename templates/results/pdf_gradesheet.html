@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Academic Grade Sheet</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 1.5cm;
+            margin-bottom: 2cm;
+            @frame footer_frame {
+                -pdf-frame-content: footerContent;
+                bottom: 0.8cm;
+                margin-left: 1.5cm;
+                margin-right: 1.5cm;
+                height: 1cm;
+            }
+        }
+        #footerContent {
+            text-align: right;
+            font-size: 8.5pt;
+            color: #64748b;
+        }
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #1a1a1a;
+            line-height: 1.4;
+            font-size: 10pt;
+        }
+        .header-container {
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .institution-title {
+            font-size: 20pt;
+            font-weight: bold;
+            color: #1e293b;
+            margin: 0;
+            text-transform: uppercase;
+        }
+        .gradesheet-subtitle {
+            font-size: 12pt;
+            color: #2563eb;
+            margin: 5px 0 0 0;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .info-table {
+            width: 100%;
+            margin-bottom: 30px;
+            border-collapse: collapse;
+        }
+        .info-table td {
+            padding: 5px 0;
+            vertical-align: top;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #475569;
+            width: 18%;
+        }
+        .info-value {
+            color: #0f172a;
+            width: 32%;
+        }
+        .grades-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+        }
+        .grades-table th {
+            background-color: #1e293b;
+            color: #ffffff;
+            font-weight: bold;
+            text-align: left;
+            padding: 10px;
+            font-size: 9pt;
+            text-transform: uppercase;
+        }
+        .grades-table td {
+            padding: 10px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 9.5pt;
+        }
+        .grades-table tr:nth-child(even) td {
+            background-color: #f8fafc;
+        }
+        .summary-container {
+            margin-top: 30px;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .summary-label {
+            font-size: 11pt;
+            font-weight: bold;
+            color: #475569;
+        }
+        .summary-value {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #2563eb;
+            text-align: right;
+        }
+        .footer-sig-container {
+            margin-top: 80px;
+            width: 100%;
+        }
+        .sig-col {
+            width: 50%;
+            text-align: center;
+        }
+        .sig-line {
+            width: 200px;
+            border-bottom: 1px solid #475569;
+            margin: 0 auto 10px auto;
+        }
+        .sig-title {
+            font-size: 9pt;
+            color: #475569;
+            font-weight: bold;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            font-size: 8pt;
+            font-weight: bold;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .badge-pass {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .badge-fail {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+    <div id="footerContent">
+        Page <pdf:pageNumber> of <pdf:pageCount>
+    </div>
+
+    <!-- Header Block -->
+    <div class="header-container">
+        <h1 class="institution-title">EduAdmin Pro University</h1>
+        <div class="gradesheet-subtitle">OFFICIAL SEMESTER GRADE STATEMENT</div>
+    </div>
+
+    <!-- Student Metadata -->
+    <table class="info-table">
+        <tr>
+            <td class="info-label">Student Name:</td>
+            <td class="info-value">{{ student.name }}</td>
+            <td class="info-label">Roll Number:</td>
+            <td class="info-value">{{ student.roll_number }}</td>
+        </tr>
+        <tr>
+            <td class="info-label">Student ID:</td>
+            <td class="info-value">{{ student.student_id }}</td>
+            <td class="info-label">Registration No:</td>
+            <td class="info-value">{{ student.registration_number }}</td>
+        </tr>
+        <tr>
+            <td class="info-label">Course:</td>
+            <td class="info-value">{{ student.course.name }}</td>
+            <td class="info-label">Department:</td>
+            <td class="info-value">{{ student.department.name }}</td>
+        </tr>
+        <tr>
+            <td class="info-label">Semester:</td>
+            <td class="info-value">Semester {{ semester }}</td>
+            <td class="info-label">Academic Year:</td>
+            <td class="info-value">{{ student.academic_year }}</td>
+        </tr>
+    </table>
+
+    <!-- Grades Table -->
+    <table class="grades-table">
+        <thead>
+            <tr>
+                <th style="width: 15%;">Code</th>
+                <th style="width: 45%;">Subject Title</th>
+                <th style="width: 10%; text-align: center;">Credits</th>
+                <th style="width: 10%; text-align: center;">Internal</th>
+                <th style="width: 10%; text-align: center;">External</th>
+                <th style="width: 10%; text-align: center;">Total</th>
+                <th style="width: 10%; text-align: center;">Grade</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in results %}
+            <tr>
+                <td>{{ r.subject_code }}</td>
+                <td>{{ r.subject_name }}</td>
+                <td style="text-align: center;">{{ r.credit }}</td>
+                <td style="text-align: center;">{{ r.internal_marks }}</td>
+                <td style="text-align: center;">{{ r.external_marks }}</td>
+                <td style="text-align: center;">{{ r.total }}</td>
+                <td style="text-align: center; font-weight: bold; color: #2563eb;">{{ r.grade }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Performance Summaries -->
+    <div class="summary-container">
+        <table class="summary-table">
+            <tr>
+                <td class="summary-label">Semester SGPA:</td>
+                <td class="summary-value" style="color: #2563eb;">{{ sgpa }}</td>
+            </tr>
+            <tr>
+                <td class="summary-label" style="padding-top: 5px;">Cumulative CGPA:</td>
+                <td class="summary-value" style="color: #22c55e; padding-top: 5px;">{{ cgpa }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Signing Authorities -->
+    <table class="footer-sig-container">
+        <tr>
+            <td class="sig-col">
+                <div class="sig-line"></div>
+                <div class="sig-title">Prepared By</div>
+            </td>
+            <td class="sig-col">
+                <div class="sig-line"></div>
+                <div class="sig-title">Controller of Examinations</div>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

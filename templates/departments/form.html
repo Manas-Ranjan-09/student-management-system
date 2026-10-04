@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} | EduAdmin Pro{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block active_departments %}active{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="glass-card">
+            <div class="d-flex align-items-center gap-2 mb-4">
+                <a href="{% url 'department_list' %}" class="btn btn-sm btn-outline-secondary border-0"><i class="fas fa-arrow-left"></i></a>
+                <h4 class="fw-bold mb-0">{% if department %}Update{% else %}Create{% endif %} Department</h4>
+            </div>
+            
+            <form method="POST">
+                {% csrf_token %}
+                <div class="custom-form-group">
+                    <label for="code" class="custom-label">Department Code</label>
+                    <input type="text" name="code" id="code" class="custom-input" placeholder="e.g., CSE, EE, ME" value="{{ department.code|default:'' }}" required {% if department %}readonly style="background-color: var(--border-color); opacity: 0.8;"{% endif %}>
+                    <small class="text-muted">A unique short code (maximum 10 characters).</small>
+                </div>
+                
+                <div class="custom-form-group">
+                    <label for="name" class="custom-label">Department Name</label>
+                    <input type="text" name="name" id="name" class="custom-input" placeholder="e.g., Computer Science & Engineering" value="{{ department.name|default:'' }}" required>
+                </div>
+                
+                <div class="custom-form-group">
+                    <label for="description" class="custom-label">Description</label>
+                    <textarea name="description" id="description" class="custom-textarea" rows="4" placeholder="Brief details about the department (optional)">{{ department.description|default:'' }}</textarea>
+                </div>
+                
+                <div class="d-flex gap-3 justify-content-end mt-4">
+                    <a href="{% url 'department_list' %}" class="custom-btn btn-secondary-custom">Cancel</a>
+                    <button type="submit" class="custom-btn btn-primary-custom">Save Department</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

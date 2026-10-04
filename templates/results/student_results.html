@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}My Academic Results | EduAdmin Pro{% endblock %}
+{% block page_title %}My Examination Results{% endblock %}
+{% block active_student_results %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="fw-bold mb-0"><i class="fas fa-award text-primary me-2"></i>My Results History</h5>
+    <button onclick="window.print();" class="custom-btn btn-secondary-custom btn-sm no-print">
+        <i class="fas fa-print"></i> Print Transcript
+    </button>
+</div>
+
+{% if grouped_results %}
+    <!-- Accordion/Card view grouped by Semester -->
+    {% for semester, data in grouped_results.items %}
+        <div class="glass-card mb-4">
+            <div class="row align-items-center mb-3">
+                <div class="col">
+                    <h4 class="fw-bold mb-1 text-primary">Semester {{ semester }}</h4>
+                    <p class="text-secondary small mb-0">Grade Sheet Statement</p>
+                </div>
+                <div class="col-md-auto text-md-end mt-2 mt-md-0 d-flex flex-wrap gap-3 align-items-center">
+                    <div>
+                        <span class="text-secondary small fw-medium">Semester SGPA:</span>
+                        <strong class="text-primary fs-5 ms-1">{{ data.sgpa }}</strong>
+                    </div>
+                    <div class="border-start ps-3 d-none d-md-block">
+                        <span class="text-secondary small fw-medium">Cumulative CGPA:</span>
+                        <strong class="text-success fs-5 ms-1">{{ data.cgpa }}</strong>
+                    </div>
+                    <a href="{% url 'student_result_pdf' semester %}" class="custom-btn btn-primary-custom btn-sm no-print ms-2">
+                        <i class="fas fa-file-pdf"></i> Download PDF
+                    </a>
+                </div>
+            </div>
+
+            <div class="table-responsive border-0">
+                <table class="table table-hover align-middle mb-0 custom-table">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Subject Code</th>
+                            <th>Subject Name</th>
+                            <th>Credit</th>
+                            <th>Internal Marks</th>
+                            <th>External Marks</th>
+                            <th>Total Marks</th>
+                            <th>Grade</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in data.results %}
+                            <tr>
+                                <td class="fw-semibold text-primary">{{ r.subject_code }}</td>
+                                <td>{{ r.subject_name }}</td>
+                                <td>{{ r.credit }}</td>
+                                <td>{{ r.internal_marks }}</td>
+                                <td>{{ r.external_marks }}</td>
+                                <td class="fw-bold">{{ r.total }} / 100</td>
+                                <td><span class="badge {% if r.grade == 'F' %}bg-danger{% else %}bg-primary{% endif %}">{{ r.grade }}</span></td>
+                                <td>
+                                    <span class="custom-badge {% if r.result_status == 'Pass' %}badge-success{% else %}badge-danger{% endif %}">
+                                        {{ r.result_status }}
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="glass-card text-center py-5">
+        <i class="fas fa-award fa-3x text-muted mb-3"></i>
+        <h5 class="fw-bold">No Published Results Found</h5>
+        <p class="text-secondary mb-0">There are currently no semester grades published to your academic profile.</p>
+    </div>
+{% endif %}
+{% endblock %}
