@@ -3,10 +3,10 @@ services:
     name: student-management-system
     runtime: python
     buildCommand: "./build.sh"
-    startCommand: "gunicorn config.wsgi:application"
+    startCommand: "./start.sh"
     envVars:
       - key: PYTHON_VERSION
-        value: 3.13.0
+        value: 3.14.3
       - key: DEBUG
         value: "False"
       - key: SECRET_KEY
