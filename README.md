@@ -1,6 +1,51 @@
 # Professional Student Management System
 
-A modern, responsive, and secure **Student Management System (SMS)** built with Python, Django, Bootstrap 5, and MySQL (with seamless SQLite fallback).
+A modern, responsive, and secure **Student Management System (SMS)** built with Python, Django, Bootstrap 5, and MySQL / PostgreSQL (with seamless SQLite fallback).
+
+---
+
+## Project Structure (Clean Frontend & Backend Separation)
+
+The project separates presentation assets and server logic into dedicated directories without altering any application UI or workflow:
+
+```text
+student-management-system/
+├── frontend/                     # All Presentation & UI Assets
+│   ├── static/                   # Static files
+│   │   ├── css/styles.css        # Custom responsive styles & Dark/Light mode theme
+│   │   └── js/main.js            # Theme toggle, client interactions, alert timeouts
+│   └── templates/                # Django HTML templates (Bootstrap 5)
+│       ├── accounts/             # Login, Register, Profile, Change Password
+│       ├── courses/              # Course list & course creation/edit forms
+│       ├── dashboards/           # Admin Analytics Dashboard & Student Portal
+│       ├── departments/          # Department management views
+│       ├── results/              # Results publication & PDF gradesheet view
+│       ├── students/             # Student directory, CRUD, & detail views
+│       ├── base.html             # Base layout template
+│       ├── 404.html              # Custom 404 Error page
+│       └── 500.html              # Custom 500 Error page
+│
+├── backend/                      # All Django Server Logic & Configuration
+│   ├── accounts/                 # User authentication, RBAC decorators & profiles
+│   ├── courses/                  # Course models, views, and forms
+│   ├── departments/              # Department models, views, and forms
+│   ├── results/                  # Results computation, SGPA/CGPA engine & PDF generator
+│   ├── students/                 # Student directory, CRUD & Excel exporter
+│   ├── config/                   # Django settings, ASGI, WSGI, URLs
+│   ├── build.sh                  # Render production build script
+│   ├── render.yaml               # Render Infrastructure as Code configuration
+│   ├── requirements.txt          # Production Python dependencies
+│   ├── .env.example              # Environment variables template
+│   └── manage.py                 # Backend-scoped CLI entrypoint
+│
+├── manage.py                     # Root CLI entrypoint (runs all commands seamlessly from root)
+├── requirements.txt              # Root dependencies pointer
+├── .env.example                  # Root environment variables template
+├── .gitignore                    # Git ignore rules for Python, SQLite, media, env
+└── README.md                     # Project documentation
+```
+
+---
 
 ## Features
 
@@ -21,7 +66,7 @@ A modern, responsive, and secure **Student Management System (SMS)** built with 
 
 ## Technology Stack
 
-- **Backend**: Python 3.x, Django 5.x+, Django ORM, MySQL/SQLite, PyMySQL.
+- **Backend**: Python 3.x, Django 5.x+, Django ORM, MySQL/PostgreSQL/SQLite, PyMySQL, Gunicorn, WhiteNoise.
 - **Frontend**: HTML5, CSS3, JavaScript (ES6), Bootstrap 5, Font Awesome 6 Icons, Chart.js.
 - **File Generators**: `openpyxl` (Excel), `xhtml2pdf` / `reportlab` (PDF).
 
@@ -52,7 +97,7 @@ By default, the project runs on **SQLite** for zero-setup execution.
 
 To switch to **MySQL**:
 1. Make sure your local MySQL server is running.
-2. Create a `.env` file in the workspace root folder (`student_management/`) and fill in your database details:
+2. Create a `.env` file in the workspace root folder and fill in your database details:
 ```env
 DB_NAME=student_management_db
 DB_USER=root
@@ -62,17 +107,17 @@ DB_PORT=3306
 DEBUG=True
 SECRET_KEY=your_custom_secret_key
 ```
-*(Note: If you use MySQL, ensure you create the database `CREATE DATABASE student_management_db;` in your MySQL console before running migrations.)*
+*(Note: If using MySQL, create the database `CREATE DATABASE student_management_db;` in your MySQL console before running migrations.)*
 
 ### 4. Run Migrations
-Run the schema setup commands:
+Run schema migrations from either the project root or the `backend/` directory:
 ```bash
 python manage.py makemigrations
 python manage.py migrate
 ```
 
 ### 5. Seed Mock Data (Admins, Students, Results)
-Rather than starting from scratch, seed the database with high-quality sample data:
+Rather than starting from scratch, seed the database with sample data:
 ```bash
 python manage.py seed_data
 ```
@@ -106,3 +151,4 @@ Run the test suite using Django's test manager to verify authentication checks, 
 ```bash
 python manage.py test
 ```
+*(Runs 22 comprehensive unit and integration tests across accounts, departments, courses, students, and results.)*

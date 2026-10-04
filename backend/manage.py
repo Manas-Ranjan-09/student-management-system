@@ -1,12 +1,11 @@
 #!/usr/bin/env python
-"""Django's command-line utility for administrative tasks (root proxy to backend)."""
+"""Django's command-line utility for administrative tasks."""
 import os
 import sys
 
 def main():
     """Run administrative tasks."""
-    root_dir = os.path.dirname(os.path.abspath(__file__))
-    backend_dir = os.path.join(root_dir, 'backend')
+    backend_dir = os.path.dirname(os.path.abspath(__file__))
     if backend_dir not in sys.path:
         sys.path.insert(0, backend_dir)
 
@@ -19,11 +18,7 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
-
-    args = list(sys.argv)
-    if len(args) == 2 and args[1] == 'test':
-        args.extend(['accounts', 'departments', 'courses', 'students', 'results'])
-    execute_from_command_line(args)
+    execute_from_command_line(sys.argv)
 
 if __name__ == '__main__':
     main()
