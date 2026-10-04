@@ -34,11 +34,14 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-s*4+te^^-9)+y6mbe!#0=ipz-s
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['*'] if DEBUG else os.getenv('ALLOWED_HOSTS', '*').split(',')
+ALLOWED_HOSTS = ['*'] if DEBUG else [host.strip() for host in os.getenv('ALLOWED_HOSTS', '*').split(',') if host.strip()]
+if not DEBUG and '*' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.extend(['.onrender.com', '.netlify.app', 'localhost', '127.0.0.1'])
 
 CSRF_TRUSTED_ORIGINS = [
     'https://*.onrender.com',
     'https://*.render.com',
+    'https://*.netlify.app',
 ]
 extra_origins = os.getenv('CSRF_TRUSTED_ORIGINS', '')
 if extra_origins:

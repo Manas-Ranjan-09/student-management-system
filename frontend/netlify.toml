@@ -1,0 +1,15 @@
+[build]
+  publish = "."
+
+[[redirects]]
+  from = "/static/*"
+  to = "/static/:splat"
+  status = 200
+
+# Proxy all application routes to your Render backend
+# NOTE: Replace 'YOUR-RENDER-BACKEND' with your actual Render service URL
+[[redirects]]
+  from = "/*"
+  to = "https://YOUR-RENDER-BACKEND.onrender.com/:splat"
+  status = 200
+  force = true
