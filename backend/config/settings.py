@@ -202,6 +202,7 @@ STORAGES = {
 # Media files (Profile photos)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
 
 # Custom Authentication Model
 AUTH_USER_MODEL = 'accounts.User'

@@ -136,6 +136,40 @@ class AuthRoutingTests(TestCase):
         self.assertEqual(self.admin_user.admin_profile.name, 'Updated System Admin Name')
         self.assertEqual(self.admin_user.admin_profile.designation, 'Registrar Director')
 
+    def test_admin_profile_photo_upload_and_removal(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        self.client.login(username='admin_test', password='testpassword123')
+        
+        # Test upload with action='stay'
+        photo = SimpleUploadedFile("avatar.jpg", b"fake_image_bytes", content_type="image/jpeg")
+        data = {
+            'name': 'Admin With Photo',
+            'email': 'admin@test.com',
+            'designation': 'IT Lead',
+            'profile_photo': photo,
+            'action': 'stay'
+        }
+        response = self.client.post(reverse('admin_profile'), data)
+        self.assertRedirects(response, reverse('admin_profile'))
+        
+        self.admin_user.refresh_from_db()
+        self.assertTrue(bool(self.admin_user.admin_profile.profile_photo))
+        self.assertIn('avatar', self.admin_user.admin_profile.profile_photo.name)
+        
+        # Test photo removal
+        data_remove = {
+            'name': 'Admin With Photo',
+            'email': 'admin@test.com',
+            'designation': 'IT Lead',
+            'remove_photo': 'true',
+            'action': 'stay'
+        }
+        response_remove = self.client.post(reverse('admin_profile'), data_remove)
+        self.assertRedirects(response_remove, reverse('admin_profile'))
+        
+        self.admin_user.refresh_from_db()
+        self.assertFalse(bool(self.admin_user.admin_profile.profile_photo))
+
     def test_department_detail_view(self):
         self.client.login(username='admin_test', password='testpassword123')
         response = self.client.get(reverse('department_detail', args=[self.dept.pk]))

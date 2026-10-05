@@ -42,6 +42,22 @@ class User(AbstractUser):
     def is_student(self):
         return self.role == 'student'
 
+    @property
+    def profile_photo_url(self):
+        if self.is_admin:
+            try:
+                if hasattr(self, 'admin_profile') and self.admin_profile.profile_photo:
+                    return self.admin_profile.profile_photo.url
+            except Exception:
+                pass
+        elif self.is_student:
+            try:
+                if hasattr(self, 'student_profile') and self.student_profile.profile_photo:
+                    return self.student_profile.profile_photo.url
+            except Exception:
+                pass
+        return None
+
     def __str__(self):
         return f"{self.username} ({self.get_role_display()})"
 
@@ -55,3 +71,19 @@ class AdminProfile(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.employee_id})"
+
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+@receiver(post_save, sender=User)
+def create_or_update_admin_profile(sender, instance, created, **kwargs):
+    if instance.is_admin:
+        AdminProfile.objects.get_or_create(
+            user=instance,
+            defaults={
+                'employee_id': f"EMP{instance.id:04d}",
+                'name': instance.get_full_name() or instance.username,
+                'designation': 'System Administrator'
+            }
+        )

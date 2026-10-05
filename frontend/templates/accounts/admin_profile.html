@@ -18,20 +18,29 @@
                 <div class="row align-items-center mb-4 pb-3 border-bottom g-3">
                     <div class="col-md-3 text-center">
                         {% if profile.profile_photo %}
-                            <img src="{{ profile.profile_photo.url }}" class="rounded-circle border border-4 border-primary shadow-sm" style="width: 120px; height: 120px; object-fit: cover;" id="photo-preview">
+                            <img src="{{ profile.profile_photo.url }}" class="rounded-circle border border-4 border-primary shadow-sm" style="width: 120px; height: 120px; object-fit: cover;" id="photo-preview" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ profile.name|urlencode }}&background=2563EB&color=fff';">
                         {% else %}
-                            <img src="https://ui-avatars.com/api/?name={{ profile.name }}&background=2563EB&color=fff" class="rounded-circle border border-4 border-primary shadow-sm" style="width: 120px; height: 120px;" id="photo-preview">
+                            <img src="https://ui-avatars.com/api/?name={{ profile.name|urlencode }}&background=2563EB&color=fff" class="rounded-circle border border-4 border-primary shadow-sm" style="width: 120px; height: 120px; object-fit: cover;" id="photo-preview">
                         {% endif %}
                     </div>
                     <div class="col-md-9">
                         <h5 class="fw-bold mb-1">{{ profile.name }}</h5>
                         <p class="text-secondary small mb-2">Employee ID: <strong>{{ profile.employee_id }}</strong> | Role: <strong>{{ user.get_role_display }}</strong></p>
                         
-                        <label for="profile_photo" class="custom-btn btn-secondary-custom btn-sm">
-                            <i class="fas fa-camera"></i> Change Photo
-                        </label>
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <label for="profile_photo" class="custom-btn btn-secondary-custom btn-sm mb-0" style="cursor: pointer;">
+                                <i class="fas fa-camera me-1"></i> Change Photo
+                            </label>
+                            {% if profile.profile_photo %}
+                                <button type="button" class="btn btn-outline-danger btn-sm" id="btn-remove-photo" onclick="removePhoto()">
+                                    <i class="fas fa-trash-alt me-1"></i> Remove
+                                </button>
+                            {% endif %}
+                            <span id="file-name-display" class="small text-muted ms-1"></span>
+                        </div>
                         <input type="file" name="profile_photo" id="profile_photo" class="d-none" accept="image/*" onchange="previewImage(event)">
-                        <small class="text-muted d-block mt-1">Accepts JPG, PNG formats.</small>
+                        <input type="hidden" name="remove_photo" id="remove_photo" value="false">
+                        <small class="text-muted d-block mt-2">Accepts JPG, JPEG, PNG, WEBP formats.</small>
                     </div>
                 </div>
 
@@ -67,9 +76,10 @@
                     </div>
                 </div>
 
-                <div class="d-flex gap-3 justify-content-end mt-4 pt-3 border-top">
-                    <a href="{% url 'admin_dashboard' %}" class="custom-btn btn-secondary-custom">Cancel</a>
-                    <button type="submit" class="custom-btn btn-primary-custom">Update Profile Info</button>
+                <div class="d-flex flex-wrap gap-2 justify-content-end mt-4 pt-3 border-top">
+                    <a href="{% url 'admin_dashboard' %}" class="custom-btn btn-secondary-custom">Back to Dashboard</a>
+                    <button type="submit" name="action" value="stay" class="custom-btn btn-secondary-custom"><i class="fas fa-save me-1"></i> Save Changes</button>
+                    <button type="submit" name="action" value="dashboard" class="custom-btn btn-primary-custom"><i class="fas fa-check me-1"></i> Update & Go to Dashboard</button>
                 </div>
             </form>
         </div>
@@ -78,12 +88,45 @@
 
 <script>
     function previewImage(event) {
-        const reader = new FileReader();
-        reader.onload = function(){
-            const output = document.getElementById('photo-preview');
-            output.src = reader.result;
-        };
-        reader.readAsDataURL(event.target.files[0]);
+        if (event.target.files && event.target.files[0]) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(){
+                const output = document.getElementById('photo-preview');
+                if (output) {
+                    output.src = reader.result;
+                }
+            };
+            reader.readAsDataURL(file);
+            
+            const nameDisplay = document.getElementById('file-name-display');
+            if (nameDisplay) {
+                nameDisplay.textContent = file.name;
+            }
+            const removeInput = document.getElementById('remove_photo');
+            if (removeInput) {
+                removeInput.value = 'false';
+            }
+        }
+    }
+
+    function removePhoto() {
+        const output = document.getElementById('photo-preview');
+        if (output) {
+            output.src = "https://ui-avatars.com/api/?name={{ profile.name|urlencode }}&background=2563EB&color=fff";
+        }
+        const fileInput = document.getElementById('profile_photo');
+        if (fileInput) {
+            fileInput.value = '';
+        }
+        const nameDisplay = document.getElementById('file-name-display');
+        if (nameDisplay) {
+            nameDisplay.textContent = 'Photo will be removed on save';
+        }
+        const removeInput = document.getElementById('remove_photo');
+        if (removeInput) {
+            removeInput.value = 'true';
+        }
     }
 </script>
 {% endblock %}

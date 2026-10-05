@@ -171,15 +171,15 @@
                 {% if user.is_authenticated %}
                     <div class="user-profile-summary">
                         {% if user.role == 'student' and user.student_profile.profile_photo %}
-                            <img src="{{ user.student_profile.profile_photo.url }}" alt="Profile">
-                        {% elif user.role == 'admin' and user.admin_profile.profile_photo %}
-                            <img src="{{ user.admin_profile.profile_photo.url }}" alt="Profile">
+                            <img src="{{ user.student_profile.profile_photo.url }}" alt="Profile" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ user.username }}&background=2563EB&color=fff';">
+                        {% elif user.is_admin and user.admin_profile.profile_photo %}
+                            <img src="{{ user.admin_profile.profile_photo.url }}" alt="Profile" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ user.username }}&background=2563EB&color=fff';">
                         {% else %}
                             <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=2563EB&color=fff" alt="Profile">
                         {% endif %}
                         <div class="user-profile-info">
                             <span class="user-profile-name">
-                                {% if user.role == 'admin' and user.admin_profile %}
+                                {% if user.is_admin and user.admin_profile %}
                                     {{ user.admin_profile.name }}
                                 {% elif user.role == 'student' and user.student_profile %}
                                     {{ user.student_profile.name }}
@@ -188,7 +188,7 @@
                                 {% endif %}
                             </span>
                             <span class="user-profile-role">
-                                {% if user.role == 'admin' and user.admin_profile %}
+                                {% if user.is_admin and user.admin_profile %}
                                     {{ user.admin_profile.designation }}
                                 {% else %}
                                     {{ user.get_role_display }}
@@ -223,16 +223,16 @@
                         <div class="dropdown">
                             <button class="btn dropdown-toggle d-flex align-items-center gap-2 border-0 text-primary fw-semibold p-1" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                 {% if user.role == 'student' and user.student_profile.profile_photo %}
-                                    <img src="{{ user.student_profile.profile_photo.url }}" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;" alt="Avatar">
-                                {% elif user.role == 'admin' and user.admin_profile.profile_photo %}
-                                    <img src="{{ user.admin_profile.profile_photo.url }}" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;" alt="Avatar">
+                                    <img src="{{ user.student_profile.profile_photo.url }}" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;" alt="Avatar" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ user.username }}&background=2563EB&color=fff';">
+                                {% elif user.is_admin and user.admin_profile.profile_photo %}
+                                    <img src="{{ user.admin_profile.profile_photo.url }}" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;" alt="Avatar" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ user.username }}&background=2563EB&color=fff';">
                                 {% else %}
                                     <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=2563EB&color=fff" class="rounded-circle" style="width: 32px; height: 32px;" alt="Avatar">
                                 {% endif %}
                                 <span class="d-none d-md-inline text-dark-theme-toggle">{{ user.username }}</span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2" aria-labelledby="userDropdown">
-                                {% if user.role == 'admin' %}
+                                {% if user.is_admin %}
                                     <li><a class="dropdown-item py-2" href="{% url 'admin_profile' %}"><i class="fas fa-user-circle me-2 text-secondary"></i>My Profile</a></li>
                                 {% endif %}
                                 <li><a class="dropdown-item py-2" href="{% url 'change_password' %}"><i class="fas fa-key me-2 text-secondary"></i>Change Password</a></li>

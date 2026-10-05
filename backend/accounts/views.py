@@ -265,6 +265,8 @@ def admin_profile_view(request):
         phone = request.POST.get('phone')
         designation = request.POST.get('designation')
         profile_photo = request.FILES.get('profile_photo')
+        remove_photo = request.POST.get('remove_photo') == 'true'
+        action = request.POST.get('action', '')
         
         # Validation checks
         if not name or not email:
@@ -284,11 +286,27 @@ def admin_profile_view(request):
                     profile.name = name
                     profile.phone = phone
                     profile.designation = designation
-                    if profile_photo:
+                    
+                    if remove_photo:
+                        if profile.profile_photo:
+                            try:
+                                profile.profile_photo.delete(save=False)
+                            except Exception:
+                                pass
+                            profile.profile_photo = None
+                    elif profile_photo:
+                        if profile.profile_photo:
+                            try:
+                                profile.profile_photo.delete(save=False)
+                            except Exception:
+                                pass
                         profile.profile_photo = profile_photo
+                        
                     profile.save()
                     
                 messages.success(request, "Your administrator profile has been updated successfully!")
+                if action == 'stay':
+                    return redirect('admin_profile')
                 return redirect('admin_dashboard')
             except Exception as e:
                 messages.error(request, f"Failed to save profile. Error: {str(e)}")

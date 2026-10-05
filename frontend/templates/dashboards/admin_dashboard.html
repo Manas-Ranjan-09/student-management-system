@@ -5,7 +5,27 @@
 {% block active_admin_dash %}active{% endblock %}
 
 {% block content %}
-<!-- Welcome & Quick Stats -->
+<!-- Admin Welcome Banner -->
+<div class="glass-card mb-4 bg-primary text-white border-0 py-4 px-4 shadow-sm" style="background: linear-gradient(135deg, #1E40AF 0%, #2563EB 100%) !important;">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            {% if request.user.admin_profile.profile_photo %}
+                <img src="{{ request.user.admin_profile.profile_photo.url }}" class="rounded-circle border border-3 border-white shadow-sm" style="width: 75px; height: 75px; object-fit: cover;" alt="Admin Avatar" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ request.user.admin_profile.name|default:request.user.username|urlencode }}&background=FFFFFF&color=2563EB';">
+            {% else %}
+                <img src="https://ui-avatars.com/api/?name={{ request.user.admin_profile.name|default:request.user.username|urlencode }}&background=FFFFFF&color=2563EB" class="rounded-circle border border-3 border-white shadow-sm" style="width: 75px; height: 75px;" alt="Admin Avatar">
+            {% endif %}
+        </div>
+        <div class="col mt-2 mt-sm-0">
+            <h4 class="fw-bold mb-1">Welcome back, {{ request.user.admin_profile.name|default:request.user.username }}!</h4>
+            <p class="mb-0 opacity-75">Designation: <strong>{{ request.user.admin_profile.designation|default:'System Administrator' }}</strong> | Employee ID: <strong>{{ request.user.admin_profile.employee_id|default:'N/A' }}</strong></p>
+        </div>
+        <div class="col-auto ms-auto d-none d-md-block">
+            <a href="{% url 'admin_profile' %}" class="btn btn-light btn-sm text-primary fw-semibold"><i class="fas fa-user-edit me-1"></i>Edit Profile</a>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats -->
 <div class="row g-4 mb-4">
     <!-- Stat 1: Students -->
     <div class="col-md-6 col-lg-3">
